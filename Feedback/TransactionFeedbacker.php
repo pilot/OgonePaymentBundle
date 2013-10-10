@@ -3,19 +3,23 @@
 namespace Pilot\OgonePaymentBundle\Feedback;
 
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\Common\Persistence\ObjectManager;
 use Pilot\OgonePaymentBundle\Config\ConfigurationContainer;
-use Pilot\OgonePaymentBundle\Propel\OgoneOrderQuery;
-use Pilot\OgonePaymentBundle\Propel\OgoneAliasQuery;
-use Pilot\OgonePaymentBundle\Propel\OgoneAliasPeer;
+use Pilot\OgonePaymentBundle\Entity\OgoneOrder;
+use Pilot\OgonePaymentBundle\Entity\OgoneAlias;
+use Pilot\OgonePaymentBundle\Feedback\OgoneCodes;
 
 class TransactionFeedbacker
 {
     protected $secureConfigurationContainer;
 
-    public function __construct(Request $request, ConfigurationContainer $secureConfigurationContainer)
+    protected $om;
+
+    public function __construct(Request $request, ConfigurationContainer $secureConfigurationContainer, ObjectManager $om)
     {
         $this->request = $request;
         $this->secureConfigurationContainer = $secureConfigurationContainer;
+        $this->om = $om;
     }
 
     public function isValidCall()
@@ -57,25 +61,28 @@ class TransactionFeedbacker
 
     public function updateOrder()
     {
-        $order = OgoneOrderQuery::create()->findPk($this->request->get('orderID'));
+        $order = $this->om->getRepository('PilotOgonePaymentBundle:OgoneOrder')->find($this->request->get('orderID'));
 
         if (!$order) {
             throw new \LogicException('Order cant be invalid here !!');
         }
 
-        $order->setCurrency($this->request->get('currency'));
-        $order->setPaymentMethod($this->request->get('PM'));
-        $order->setAcceptance($this->request->get('ACCEPTANCE'));
-        $order->setStatus($this->request->get('STATUS'));
-        $order->setCardNumber($this->request->get('CARDNO'));
-        $order->setEd($this->request->get('ED'));
-        $order->setClientName($this->request->get('CN'));
-        $order->setTransactionDate(\DateTime::createFromFormat('m/d/y', $this->request->get('TRXDATE')));
-        $order->setPayid($this->request->get('PAYID'));
-        $order->setNcError($this->request->get('NCERROR'));
-        $order->setBrand($this->request->get('BRAND'));
-        $order->setIp($this->request->get('IP'));
-        $order->save();
+        $order
+            ->setCurrency($this->request->get('currency'))
+            ->setPaymentMethod($this->request->get('PM'))
+            ->setAcceptance($this->request->get('ACCEPTANCE'))
+            ->setStatus($this->request->get('STATUS'))
+            ->setCardNumber($this->request->get('CARDNO'))
+            ->setEd($this->request->get('ED'))
+            ->setClientName($this->request->get('CN'))
+            ->setTransactionDate(\DateTime::createFromFormat('m/d/y', $this->request->get('TRXDATE')))
+            ->setPayid($this->request->get('PAYID'))
+            ->setNcError($this->request->get('NCERROR'))
+            ->setBrand($this->request->get('BRAND'))
+            ->setIp($this->request->get('IP'))
+        ;
+
+        $this->save($order);
 
         return $this;
     }
@@ -87,26 +94,33 @@ class TransactionFeedbacker
 
     public function updateAlias()
     {
-        $alias = OgoneAliasQuery::create()->findOneByUuid($this->request->get('ALIAS'));
+        $alias = $this->om->getRepository('PilotOgonePaymentBundle:OgoneAlias')->find($this->request->get('ALIAS'));
 
         if (!$alias) {
             throw new \LogicException('Alias cant be invalid here !!');
         }
 
         if (OgoneCodes::isPayed($this->request->get('STATUS'))) {
-            $alias->setStatus(OgoneAliasPeer::STATUS_ACTIVE);
+            $alias->setStatus(OgoneAlias::STATUS_ACTIVE);
         } elseif (OgoneCodes::isRefused($this->request->get('STATUS'))) {
-            $alias->setStatus(OgoneAliasPeer::STATUS_ERROR);
+            $alias->setStatus(OgoneAlias::STATUS_ERROR);
         }
 
         // Update client info if user change is name for the cb
         if ($this->request->get('CN')) {
-            $alias->getOgoneClient()->setFullName($this->request->get('CN'));
-            $alias->getOgoneClient()->save();
+            $client = $alias->getClient();
+            $client->setFullName($this->request->get('CN'));
+            $this->save($client);
         }
 
-        $alias->save();
+        $this->save($alias);
 
         return $this;
+    }
+
+    public function save($object)
+    {
+        $this->om->persist($object);
+        $this->om->flush();
     }
 }

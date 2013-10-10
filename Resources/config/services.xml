@@ -44,6 +44,7 @@
         <service id="ogone.feedbacker" class="%ogone.feedbacker.class%" public="true" scope="request">
             <argument type="service" id="request" />
             <argument type="service" id="ogone.secure_configuration" />
+            <argument type="service" id="doctrine.orm.entity_manager" />
         </service>
 
         <service id="ogone.batch_request" class="%ogone.batch_request.class%" public="true">
