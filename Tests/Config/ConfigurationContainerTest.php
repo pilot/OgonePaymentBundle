@@ -42,13 +42,15 @@ class ConfigurationContainerTest extends TestCase
         $this->assertEquals('demo', $config->getTitle());
     }
 
+    /**
+     * @todo: check if template used, follow by PaymentController::renderTemplateAction
+     */
     public function testSetTemplate()
     {
         $config = new ConfigurationContainer;
         $config->setRouter($this->getContainer()->get('router'), 'ogone_template');
 
         $config->setTemplate('::ogone.html.twig');
-        $this->assertEquals('http://localhost/ogone/template/::ogone.html.twig', $config->getTP());
+        $this->assertEquals('http://localhost/ogone/template/::ogone.html.twig', substr($config->getTP(), 0, -15));
     }
-
 }

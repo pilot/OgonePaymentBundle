@@ -2,99 +2,79 @@
 
 namespace Pilot\OgonePaymentBundle\Tests\Builder;
 
+use Symfony\Component\Form\FormFactory;
 use Pilot\OgonePaymentBundle\Tests\TestCase;
 use Pilot\OgonePaymentBundle\Builder\TransactionBuilder;
 use Pilot\OgonePaymentBundle\Builder\TransactionFormBuilder;
 use Pilot\OgonePaymentBundle\Config\SecureConfigurationContainer;
 use Pilot\OgonePaymentBundle\Config\ConfigurationContainer;
-use Pilot\OgonePaymentBundle\Propel\OgoneAlias;
-use Pilot\OgonePaymentBundle\Propel\OgoneOrder;
-use Pilot\OgonePaymentBundle\Propel\OgoneAliasPeer;
-use Symfony\Component\Form\FormFactory;
+use Pilot\OgonePaymentBundle\Entity\OgoneAlias;
+use Pilot\OgonePaymentBundle\Entity\OgoneOrder;
 use Pilot\OgonePaymentBundle\Batch\TransactionManager;
 
 class TransactionBuilderTest extends TestCase
 {
+    protected $configurationContainer;
+
     protected $builder;
 
     public function setUp()
     {
         $formFactory = new FormFactory($this->getContainer()->get('form.registry'), $this->getContainer()->get('form.resolved_type_factory'));
         $secureConfigurationContainer = new SecureConfigurationContainer(array('shaInKey' => 'testHash', 'algorithm' => 'sha512'));
-        $configurationContainer = new ConfigurationContainer(array());
-        $tm = new TransactionManager($configurationContainer, $this->getContainer()->get('ogone.batch_request'));
+        $this->configurationContainer = new ConfigurationContainer(array());
+        $order = $this->getMock('Pilot\OgonePaymentBundle\Entity\OgoneOrder');
+        $tm = new TransactionManager($this->configurationContainer, $this->getContainer()->get('ogone.batch_request'));
 
         $formBuilder = new TransactionFormBuilder($formFactory, $secureConfigurationContainer);
-        $this->builder = new TransactionBuilderMock($formBuilder, $configurationContainer, $tm);
+        $this->builder = $this->getMock(
+            'Pilot\OgonePaymentBundle\Builder\TransactionBuilder',
+            array('getConfigurationContainer', 'order'),
+            array($formBuilder, $this->configurationContainer, $tm, $this->getContainer()->get('doctrine.orm.entity_manager'))
+        );
     }
 
     public function testUseAlias()
     {
         $alias = new OgoneAlias();
         $alias->setName('USAGE');
-        $alias->setOperation(OgoneAliasPeer::OPERATION_BYMERCHANT);
+        $alias->setOperation(OgoneAlias::OPERATION_BYMERCHANT);
 
-        $this->assertEquals(null, $this->builder->getConfigurationContainer()->all());
+        $this->assertEquals(null, $this->configurationContainer->all());
 
         $this->builder->useAlias($alias);
         $this->assertEquals(array(
             'aliasoperation' => 'BYMERCHANT',
             'aliasusage'     => 'USAGE',
-        ), $this->builder->getConfigurationContainer()->all());
+        ), $this->configurationContainer->all());
     }
 
     public function testConfigure()
     {
-        $this->assertEquals(null, $this->builder->getConfigurationContainer()->all());
+        $this->assertEquals(null, $this->configurationContainer->all());
 
-        $this->builder->configure()
-                        ->setBgColor('red')
-                      ->end();
+        $this->builder
+            ->configure()
+                ->setBgColor('red')
+            ->end();
 
-        $this->assertEquals(array(
-            'bgcolor'     => 'red',
-        ), $this->builder->getConfigurationContainer()->all());
+        $this->assertEquals(array('bgcolor' => 'red'), $this->configurationContainer->all());
     }
 
-    public function testPrepareTransaction()
+    /**
+     * @todo: update date to check configuration preparation
+     */
+    public function prepareTransaction()
     {
-        $this->builder->order()
-                        ->setAmount(150)
-                      ->end();
+        $this->builder
+            ->order()
+                ->setAmount(150)
+            ->end();
 
-        $this->assertEquals(null, $this->builder->getConfigurationContainer()->all());
+        $this->assertEquals(null, $this->configurationContainer->all());
 
         $this->builder->prepareTransaction();
 
-        $this->assertEquals(array(
-            'amount'     => 150,
-        ), $this->builder->getConfigurationContainer()->all());
-    }
-}
-
-class TransactionBuilderMock extends TransactionBuilder
-{
-    public function __construct(TransactionFormBuilder $transactionFormBuilder, ConfigurationContainer $configurationContainer, TransactionManager $transactionManager)
-    {
-        parent::__construct($transactionFormBuilder, $configurationContainer, $transactionManager);
-        $this->order = new OgoneOrderMock();
-    }
-
-    public function __call($method, $args)
-    {
-        return call_user_func_array(array($this,$method), $args);
-    }
-
-    public function getConfigurationContainer()
-    {
-        return $this->configurationContainer;
-    }
-}
-
-class OgoneOrderMock extends OgoneOrder
-{
-    public function save(\PropelPDO $con = null)
-    {
-        return $this;
+        $this->assertEquals(array('amount' => 150), $this->configurationContainer->all());
     }
 }

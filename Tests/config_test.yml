@@ -8,7 +8,22 @@ framework:
     templating:      { engines: ['twig'] } #assets_version: SomeVersionScheme
     session:         ~
 
-Pilot_ogone_payment:
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver:   pdo_mysql
+        host:     127.0.0.1
+        port:     null
+        dbname:   ogone
+        user:     root
+        password: qsz3wdx
+        charset:  UTF8
+
+    orm:
+        auto_generate_proxy_classes: %kernel.debug%
+        auto_mapping: true
+
+pilot_ogone_payment:
     secret:
         shaInKey: Mysecretsig1875!?
         shaOutKey: Mysecretsig1875!?

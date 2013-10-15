@@ -52,5 +52,4 @@ class TransactionManager extends BatchManager
             '%aliasName%'      => $aliasName,
         ));
     }
-
 }

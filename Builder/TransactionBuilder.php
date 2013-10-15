@@ -56,7 +56,7 @@ class TransactionBuilder
         ;
     }
 
-    protected function prepareTransaction()
+    public function prepareTransaction()
     {
         foreach ($this->order->toOgone() as $key => $value) {
             $this->configurationContainer->{'set'.$key}($value);

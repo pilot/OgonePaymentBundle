@@ -2,6 +2,7 @@
 
 namespace Pilot\OgonePaymentBundle\Builder;
 
+use \Symfony\Component\Form\FormFactoryInterface;
 use Pilot\OgonePaymentBundle\Config\ConfigurationContainer;
 
 class TransactionFormBuilder
@@ -14,7 +15,7 @@ class TransactionFormBuilder
 
     protected $secureConfigurationContainer;
 
-    public function __construct(\Symfony\Component\Form\FormFactoryInterface $formFactory, ConfigurationContainer $secureConfigurationContainer)
+    public function __construct(FormFactoryInterface $formFactory, ConfigurationContainer $secureConfigurationContainer)
     {
         $this->formFactory = $formFactory;
         $this->form = $this->formFactory->createNamedBuilder(null, 'form');

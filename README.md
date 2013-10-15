@@ -1,8 +1,6 @@
 # Ogone payment bundle, [ogone](http://ogone.com)
 
-Doctrine port of [Pilot/OgonePaymentBundle](https://github.com/Pilot/OgonePaymentBundle)
-
-[build status](https://secure.travis-ci.org/pilot/OgonePaymentBundle.png)
+Doctrine port of [Cedriclombardot/OgonePaymentBundle](https://github.com/cedriclombardot/OgonePaymentBundle)
 
 ## Features
 

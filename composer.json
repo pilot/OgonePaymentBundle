@@ -22,7 +22,11 @@
     "require": {
         "symfony/symfony": ">=2.1.0",
         "doctrine/orm": ">=2.2.3,<2.4-dev",
+        "doctrine/doctrine-bundle": "1.2.*",
         "kriswallsmith/buzz": "v0.10"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~3.7@stable"
     },
     "target-dir": "Pilot/OgonePaymentBundle",
     "autoload": {

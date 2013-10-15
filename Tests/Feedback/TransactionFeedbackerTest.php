@@ -14,7 +14,7 @@ class TransactionFeedbackerTest extends TestCase
         $request = new Request();
         $secureConfigurationContainer = new SecureConfigurationContainer(array('shaOutKey' => 'testHash', 'algorithm' => 'sha512'));
 
-        $feedbacker = new TransactionFeedbacker($request, $secureConfigurationContainer);
+        $feedbacker = new TransactionFeedbacker($request, $secureConfigurationContainer, $this->getContainer()->get('doctrine.orm.entity_manager'));
 
         $this->assertFalse($feedbacker->isValidCall(), 'SHASIGN is mandatory');
 

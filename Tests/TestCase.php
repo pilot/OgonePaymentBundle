@@ -2,7 +2,6 @@
 
 namespace Pilot\OgonePaymentBundle\Tests;
 
-
 class TestCase extends \PHPUnit_Framework_TestCase
 {
     static $kernel;
@@ -21,9 +20,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
         return self::$kernel;
     }
-
 }
-
 
 class MyKernel extends \Symfony\Component\HttpKernel\Kernel
 {
@@ -33,12 +30,10 @@ class MyKernel extends \Symfony\Component\HttpKernel\Kernel
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new \Symfony\Bundle\TwigBundle\TwigBundle(),
 
-            // Propel
-            new \Propel\PropelBundle\PropelBundle(),
+            new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
 
             // Ogone
             new \Pilot\OgonePaymentBundle\PilotOgonePaymentBundle(),
-
         );
     }
 
