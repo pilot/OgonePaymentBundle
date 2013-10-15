@@ -1,4 +1,4 @@
-# Ogone payment bundle, [ogone](http://ogone.com)
+# Ogone payment bundle for [ogone.com](http://ogone.com)
 
 Doctrine port of [Cedriclombardot/OgonePaymentBundle](https://github.com/cedriclombardot/OgonePaymentBundle)
 
@@ -59,66 +59,64 @@ pilot_ogone_payment:
 In the controller
 
 ```php
-    public function indexAction()
-    {
-        $client = $this->getRepository('PilotOgonePaymentBundle:OgoneClient')->findOneBy(array(
-            'email' => 'test@test.com',
-        ));
+public function indexAction()
+{
+  $client = $this->getRepository('PilotOgonePaymentBundle:OgoneClient')->findOneBy(array(
+      'email' => 'test@test.com',
+  ));
 
-        if (!$client) {
-            $client = new OgoneClient();
-            $client->setEmail('test@test.com');
+  if (!$client) {
+      $client = new OgoneClient();
+      $client->setEmail('test@test.com');
 
-            $this->getManager()->persist($client);
-            $this->getManager()->flush();
-        }
+      $this->getManager()->persist($client);
+      $this->getManager()->flush();
+  }
 
-        $transaction = $this->get('ogone.transaction_builder')
-            ->order()
-                ->setClient($client)
-                ->setAmount(99)
-            ->end()
-            ->configure()
-                ->setBgColor('#ffffff')
-                ->setAcceptUrl($this->generateUrl('ogone_payment_feedback', array(), true))
-                ->setDeclineUrl($this->generateUrl('ogone_payment_feedback', array(), true))
-                ->setExceptionUrl($this->generateUrl('ogone_payment_feedback', array(), true))
-                ->setCancelUrl($this->generateUrl('ogone_payment_feedback', array(), true))
-                ->setBackUrl($this->generateUrl('ogone_payment_feedback', array(), true))
-            ->end()
-        ;
+  $transaction = $this->get('ogone.transaction_builder')
+      ->order()
+          ->setClient($client)
+          ->setAmount(99)
+      ->end()
+      ->configure()
+          ->setBgColor('#ffffff')
+          ->setAcceptUrl($this->generateUrl('ogone_payment_feedback', array(), true))
+          ->setDeclineUrl($this->generateUrl('ogone_payment_feedback', array(), true))
+          ->setExceptionUrl($this->generateUrl('ogone_payment_feedback', array(), true))
+          ->setCancelUrl($this->generateUrl('ogone_payment_feedback', array(), true))
+          ->setBackUrl($this->generateUrl('ogone_payment_feedback', array(), true))
+      ->end()
+  ;
 
-        $transaction->save();
+  $transaction->save();
 
-        $form = $transaction->getForm();
+  $form = $transaction->getForm();
 
-        return $this->render(
-            'PilotOgonePaymentBundle:Payment:index.html.twig',
-            array(
-                'form' => $form->createView(),
-            )
-        );
-    }
+  return $this->render(
+      'PilotOgonePaymentBundle:Payment:index.html.twig',
+      array(
+          'form' => $form->createView(),
+      )
+  );
+}
 ```
 
 
 And the feedback:
 
 ```php
-<?php
-    public function feedbackAction()
-    {
-        if (!$this->get('ogone.feedbacker')->isValidCall()) {
-            throw $this->createNotFoundException();
-        }
+public function feedbackAction()
+{
+  if (!$this->get('ogone.feedbacker')->isValidCall()) {
+      throw $this->createNotFoundException();
+  }
 
-        $this->get('ogone.feedbacker')->updateOrder();
+  $this->get('ogone.feedbacker')->updateOrder();
 
-        return $this->render(
-            'PilotOgonePaymentBundle:Payment:feedback.html.twig'
-        );
-    }
-
+  return $this->render(
+      'PilotOgonePaymentBundle:Payment:feedback.html.twig'
+  );
+}
 ```
 
 ## Alias managment
