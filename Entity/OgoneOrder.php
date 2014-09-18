@@ -255,7 +255,7 @@ class OgoneOrder
     /**
      * @var boolean
      *
-     * @ORM\Column(name="payment_method", type="boolean", nullable=true)
+     * @ORM\Column(name="payment_method", type="string", length=25, nullable=true)
      */
     private $paymentMethod;
 

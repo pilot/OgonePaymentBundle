@@ -40,7 +40,7 @@ class TransactionBuilderTest extends TestCase
         $alias->setName('USAGE');
         $alias->setOperation(OgoneAlias::OPERATION_BYMERCHANT);
 
-        $this->assertEquals(null, $this->configurationContainer->all());
+        $this->assertEquals(array(), $this->configurationContainer->all());
 
         $this->builder->useAlias($alias);
         $this->assertEquals(array(
@@ -51,7 +51,7 @@ class TransactionBuilderTest extends TestCase
 
     public function testConfigure()
     {
-        $this->assertEquals(null, $this->configurationContainer->all());
+        $this->assertEquals(array(), $this->configurationContainer->all());
 
         $this->builder
             ->configure()
