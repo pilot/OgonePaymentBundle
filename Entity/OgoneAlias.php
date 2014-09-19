@@ -72,14 +72,14 @@ class OgoneAlias
     /**
      * @var boolean
      *
-     * @ORM\Column(name="operation", type="boolean", nullable=false)
+     * @ORM\Column(name="operation", type="string", length=255, nullable=false)
      */
     private $operation;
 
     /**
      * @var boolean
      *
-     * @ORM\Column(name="status", type="boolean", nullable=false)
+     * @ORM\Column(name="status", type="string", length=255, nullable=false)
      */
     private $status;
 
